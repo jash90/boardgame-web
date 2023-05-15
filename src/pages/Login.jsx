@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { TextField, Button, Card, CardContent, makeStyles } from '@material-ui/core';
-import { useNavigate } from 'react-router-dom'; // Add this
+import { Button, Card, CardContent, makeStyles, TextField } from '@material-ui/core';
+import { useNavigate } from 'react-router-dom';
+import axios from '../api/axios';
+import { useAtom } from 'jotai';
+import { currentUserAtom } from '../jotai/models';
 
 const useStyles = makeStyles({
   card: {
     maxWidth: 400,
     margin: '0 auto',
     padding: '20px 30px',
-    marginTop: 50,
+    marginTop: 50
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 20
   },
   button: {
-    marginTop: 20, // Add some margin to the top of the button
-  },
+    marginTop: 20 // Add some margin to the top of the button
+  }
 });
 
 const Login = () => {
@@ -26,6 +28,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -48,16 +51,19 @@ const Login = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:3000/login', {
+      const { data: { token } } = await axios.post(`login`, {
         email,
-        password,
+        password
       });
 
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', token);
 
+      const { data: userData } = await axios.get(`user`);
+
+      setCurrentUser(userData);
       setEmail('');
       setPassword('');
-      navigate("/")
+      navigate('/');
     } catch (error) {
       console.error(error);
     }
@@ -67,12 +73,15 @@ const Login = () => {
     <Card className={classes.card}>
       <CardContent>
         <h2 className={classes.title}>Login</h2>
-        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Username' value={email} onChange={handleUsernameChange} fullWidth />
-        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password' type='password' value={password} onChange={handlePasswordChange} fullWidth />
+        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Username'
+                   value={email} onChange={handleUsernameChange} fullWidth />
+        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password'
+                   type='password' value={password} onChange={handlePasswordChange} fullWidth />
         <Button variant='contained' color='primary' onClick={handleLogin} fullWidth>
           Login
         </Button>
-        <Button variant='outlined' color='primary' onClick={() => navigate('/register')} className={classes.button} fullWidth>
+        <Button variant='outlined' color='primary' onClick={() => navigate('/register')} className={classes.button}
+                fullWidth>
           Register
         </Button>
       </CardContent>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { TextField, Button, Card, CardContent, makeStyles } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
+import axios from '../api/axios';
 
 const useStyles = makeStyles({
   card: {
@@ -48,7 +48,7 @@ const Register = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:3000/register', {
+      await axios.post('register', {
         email,
         password,
       });

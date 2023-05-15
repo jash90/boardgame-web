@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import { useAuth } from '../context/AuthContext';
+import axios from '../api/axios';
 
 function RentalsPage() {
   const { gameId } = useParams();
@@ -10,9 +9,6 @@ function RentalsPage() {
   const [rentals, setRentals] = useState([]);
   const [gameName, setGameName] = useState('');
 
-  const { currentUser } = useAuth();
-
-  const host = "http://localhost:3000";
 
   useEffect(() => {
 
@@ -21,7 +17,7 @@ function RentalsPage() {
 
   const fetchRentals = async () => {
     try {
-      const response = await axios.get(`${host}/rentals/${gameId}`, {
+      const response = await axios.get(`rentals/${gameId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -42,7 +38,7 @@ function RentalsPage() {
 
   const handleClearRatings = async () => {
     try {
-      await axios.delete(`${host}/rentals/${gameId}/clearRatings`);
+      await axios.delete(`rentals/${gameId}/clearRatings`);
       fetchRentals();
     } catch (error) {
       console.error(error);

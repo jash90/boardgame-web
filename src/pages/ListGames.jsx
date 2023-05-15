@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   Button,
   Dialog,
@@ -22,7 +21,9 @@ import { saveAs } from 'file-saver';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logout, ManageAccounts } from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
+import { useAtom } from 'jotai';
+import { currentUserAtom } from '../jotai/models';
+import axios from '../api/axios';
 
 const useStyles = makeStyles({
   button: {
@@ -51,10 +52,7 @@ function ListGames() {
   const [review, setReview] = useState('');
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
   const [currentReturnedGameId, setCurrentReturnedGameId] = useState(null);
-
-  const { currentUser } = useAuth();
-
-  const host = `http://localhost:3000`;
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   useEffect(() => {
     fetchBoardGames();
@@ -62,7 +60,7 @@ function ListGames() {
 
   const fetchBoardGames = async () => {
     try {
-      const response = await axios.get(`${host}/boardgames`);
+      const response = await axios.get(`boardgames`);
       setBoardGames(response.data);
     } catch (error) {
       console.error(error);
@@ -81,7 +79,7 @@ function ListGames() {
 
   const handleAddBoardGame = async () => {
     try {
-      await axios.post(`${host}/boardgames`, {
+      await axios.post(`boardgames`, {
         name,
         description,
         category,
@@ -117,7 +115,7 @@ function ListGames() {
 
   const handleEditBoardGame = async () => {
     try {
-      await axios.put(`${host}/boardgames/${editId}`, {
+      await axios.put(`boardgames/${editId}`, {
         name,
         description,
         category,
@@ -147,7 +145,7 @@ function ListGames() {
   const handleDeleteClick = async (boardGame) => {
     if (window.confirm('Are you sure you want to delete this board game?')) {
       try {
-        await axios.delete(`${host}/boardgames/${boardGame.id}`);
+        await axios.delete(`boardgames/${boardGame.id}`);
         setBoardGames(boardGames.filter(boardGame));
       } catch (error) {
         console.error(error);
@@ -168,7 +166,7 @@ function ListGames() {
         return;
       }
 
-      await axios.post(`${host}/boardgames/borrow`, {
+      await axios.post(`boardgames/borrow`, {
         boardgame_id: selectedBoardGame.id,
         first_name: firstName,
         last_name: lastName,
@@ -192,12 +190,12 @@ function ListGames() {
         alert('This board game is not currently borrowed.');
         return;
       }
-      const rental = await axios.get(`${host}/rentalByBoardgameId/${boardGame.id}`);
+      const rental = await axios.get(`rentalByBoardgameId/${boardGame.id}`);
       if (!rental.data) {
         alert('Rental not found.');
         return;
       }
-      await axios.post(`${host}/boardgames/return`, {
+      await axios.post(`boardgames/return`, {
         rental_id: rental.data.id
       });
       fetchBoardGames();
@@ -226,8 +224,8 @@ function ListGames() {
             max_players: parseInt(game.max_players, 10)
           }));
 
-          await axios.post(`${host}/boardgames/bulk-import`, { boardgames: importedBoardGames });
-          const response = await axios.get(`${host}/boardgames`);
+          await axios.post(`boardgames/bulk-import`, { boardgames: importedBoardGames });
+          const response = await axios.get(`boardgames`);
           setBoardGames(response.data);
         } catch (error) {
           console.error(error);
@@ -253,7 +251,7 @@ function ListGames() {
 
   const handleAddReview = async () => {
     try {
-      const response = await axios.post(`${host}/rentals/${currentReturnedGameId}/review`, {
+      const response = await axios.post(`rentals/${currentReturnedGameId}/review`, {
         rating,
         review
       });

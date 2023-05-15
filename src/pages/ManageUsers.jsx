@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import { useAuth } from '../context/AuthContext';
+import axios from '../api/axios';
 
 const ManageUsers = () => {
-  const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/users', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const response = await axios.get('users');
         setUsers(response.data.users);
       } catch (error) {
         console.error(error);
@@ -28,11 +22,7 @@ const ManageUsers = () => {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await axios.patch(`http://localhost:3000/users/${userId}`, { role: newRole }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await axios.patch(`users/${userId}`, { role: newRole });
       setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
     } catch (error) {
       console.error(error);
