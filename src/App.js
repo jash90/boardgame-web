@@ -3,28 +3,37 @@ import ListGames from './pages/ListGames';
 import RentalsPage from './pages/RentalsPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import PrivateRoute from './navigation/PrivateRoute';
 import ManageUsers from './pages/ManageUsers';
-import { useAtom } from 'jotai';
+import { Provider, useAtom } from 'jotai';
 import { currentUserAtom } from './jotai/models';
 import { useEffect } from 'react';
 import axios from './api/axios';
+import PrivateRoute from './navigation/PrivateRoute';
 
 function App() {
-  const [, setCurrentUser] = useAtom(currentUserAtom);
-
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   useEffect(() => {
-    // Fetch the user data immediately when the component mounts
-    fetchUserData().then(data => setCurrentUser(data));
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const fetchUserData = async (token) => {
+        try {
+          const response = await axios.get('user', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setCurrentUser(response.data);
+        } catch (error) {
+          console.error('Failed to load user data:', error);
+        }
+      };
+      fetchUserData(token);
+    }
   }, []);
 
-  const fetchUserData = async () => {
-    const response = await axios.get('user');
-    return response.data;
-  };
 
   return (
-    <Router>
+    <Provider>
+      <Router>
       <Routes>
         <Route path='/' element={<PrivateRoute />}>
           <Route index element={<ListGames />} />
@@ -37,7 +46,8 @@ function App() {
         <Route path='/manage-users' element={<ManageUsers />} />
         {/*<Route path="*" element={<Navigate to="/" />} />*/}
       </Routes>
-    </Router>
+      </Router>
+    </Provider>
   );
 }
 

@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import axios from '../api/axios';
+import { useAtom } from 'jotai';
+import { currentUserAtom } from '../jotai/models';
 
 function RentalsPage() {
   const { gameId } = useParams();
   const navigate = useNavigate();
   const [rentals, setRentals] = useState([]);
   const [gameName, setGameName] = useState('');
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
 
   useEffect(() => {
@@ -38,7 +41,9 @@ function RentalsPage() {
 
   const handleClearRatings = async () => {
     try {
-      await axios.delete(`rentals/${gameId}/clearRatings`);
+      await axios.delete(`rentals/${gameId}/clearRatings`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
       fetchRentals();
     } catch (error) {
       console.error(error);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, CardContent, makeStyles, TextField } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
@@ -58,8 +58,9 @@ const Login = () => {
 
       localStorage.setItem('token', token);
 
-      const { data: userData } = await axios.get(`user`);
-
+      const { data: userData } = await axios.get(`user`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
       setCurrentUser(userData);
       setEmail('');
       setPassword('');
@@ -68,6 +69,24 @@ const Login = () => {
       console.error(error);
     }
   };
+
+  const navigateToHome = async () => {
+    try {
+      const { data: userData } = await axios.get(`user`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      setCurrentUser(userData);
+      if (userData) {
+        navigate("/")
+      }
+    }catch (e) {
+
+    }
+  }
+
+  useEffect(() => {
+    navigateToHome()
+  }, []);
 
   return (
     <Card className={classes.card}>

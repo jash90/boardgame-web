@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField, Button, Card, CardContent, makeStyles } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
+import { useAtom } from 'jotai/index';
+import { currentUserAtom } from '../jotai/models';
 
 const useStyles = makeStyles({
   card: {
@@ -26,6 +28,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -59,6 +62,25 @@ const Register = () => {
       console.error(error);
     }
   };
+
+  const navigateToHome = async () => {
+    try {
+      const { data: userData } = await axios.get(`user`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      setCurrentUser(userData);
+      if (userData) {
+        navigate("/")
+      }
+    }catch (e) {
+
+    }
+  }
+
+  useEffect(() => {
+    navigateToHome()
+  }, []);
+
 
   return (
     <Card className={classes.card}>

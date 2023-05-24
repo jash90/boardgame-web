@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Button,
   Dialog,
@@ -12,9 +12,20 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField
+  TextField,
+  FormControl,
+  Input,
+  InputLabel,
+  Box,
+  Typography
 } from '@material-ui/core';
-import { Add as AddIcon, CloudUpload, Delete as DeleteIcon, Edit as EditIcon, Save } from '@material-ui/icons';
+import {
+  Add as AddIcon,
+  CloudUpload,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Save
+} from '@material-ui/icons';
 import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
@@ -25,15 +36,7 @@ import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
 import axios from '../api/axios';
 
-const useStyles = makeStyles({
-  button: {
-    margin: '1rem 0.5rem'
-  }
-});
-
-
 function ListGames() {
-  const classes = useStyles();
   const navigate = useNavigate(); // Add this
   const [boardGames, setBoardGames] = useState([]);
   const [open, setOpen] = useState(false);
@@ -53,19 +56,48 @@ function ListGames() {
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
   const [currentReturnedGameId, setCurrentReturnedGameId] = useState(null);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [coverFile, setCoverFile] = useState(null);
+  const [barcode, setBarcode] = useState('');
+  const [openFilterModal, setOpenFilterModal] = useState(false);
+  const [filterMinPlayers, setFilterMinPlayers] = useState('');
+  const [filterMaxPlayers, setFilterMaxPlayers] = useState('');
+  const [filterAvgRating, setFilterAvgRating] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [debouncedSearchText, setDebouncedSearchText] = useState(searchText);
+  const searchTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 1000); // 2000ms = 2s
+
+    return () => {
+      clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchText]);
 
   useEffect(() => {
     fetchBoardGames();
-  }, [currentUser, currentUser?.role]);
+  }, [
+    debouncedSearchText,
+    filterMinPlayers,
+    filterMaxPlayers,
+    filterAvgRating,
+    currentUser,
+    currentUser?.role
+  ]);
 
-  const fetchBoardGames = async () => {
-    try {
-      const response = await axios.get(`boardgames`);
-      setBoardGames(response.data);
-    } catch (error) {
-      console.error(error);
-    }
+  // Handle file change
+  const handleFileChange = (e) => {
+    setCoverFile(e.target.files[0]);
   };
+
+  //]);
 
   const handleAddClick = () => {
     setEditId(null);
@@ -75,29 +107,30 @@ function ListGames() {
     setMinPlayers(0);
     setMaxPlayers(0);
     setOpen(true);
+    setCoverFile(null);
+    setBarcode('');
   };
 
   const handleAddBoardGame = async () => {
     try {
-      await axios.post(`boardgames`, {
-        name,
-        description,
-        category,
-        min_players: minPlayers,
-        max_players: maxPlayers
-      });
-      setOpen(false);
-      setBoardGames([
-        ...boardGames,
-        {
-          name,
-          description,
-          category,
-          min_players: minPlayers,
-          max_players: maxPlayers,
-          is_available: true
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('category', category);
+      formData.append('min_players', minPlayers);
+      formData.append('max_players', maxPlayers);
+      formData.append('barcode', barcode);
+      formData.append('cover', coverFile); // Add cover here
+
+      await axios.post(`boardgames`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
         }
-      ]);
+      });
+
+      setOpen(false);
+      fetchBoardGames();
     } catch (error) {
       console.error(error);
     }
@@ -111,32 +144,31 @@ function ListGames() {
     setMinPlayers(boardGame.min_players);
     setMaxPlayers(boardGame.max_players);
     setOpen(true);
+    setCoverFile(null);
+    setBarcode('');
   };
 
   const handleEditBoardGame = async () => {
     try {
-      await axios.put(`boardgames/${editId}`, {
-        name,
-        description,
-        category,
-        min_players: minPlayers,
-        max_players: maxPlayers
-      });
-      setOpen(false);
-      const updatedBoardGames = boardGames.map((boardGame) => {
-        if (boardGame.id === editId) {
-          return {
-            ...boardGame,
-            name,
-            description,
-            category,
-            min_players: minPlayers,
-            max_players: maxPlayers
-          };
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('category', category);
+      formData.append('min_players', minPlayers);
+      formData.append('max_players', maxPlayers);
+      formData.append('barcode', barcode);
+      formData.append('cover', coverFile); // Add cover here
+
+      await axios.put(`boardgames/${editId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
         }
-        return boardGame;
       });
-      setBoardGames(updatedBoardGames);
+
+      setOpen(false);
+
+      fetchBoardGames();
     } catch (error) {
       console.error(error);
     }
@@ -145,14 +177,15 @@ function ListGames() {
   const handleDeleteClick = async (boardGame) => {
     if (window.confirm('Are you sure you want to delete this board game?')) {
       try {
-        await axios.delete(`boardgames/${boardGame.id}`);
-        setBoardGames(boardGames.filter(boardGame));
+        await axios.delete(`boardgames/${boardGame.id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        fetchBoardGames();
       } catch (error) {
         console.error(error);
       }
     }
   };
-
 
   const handleBorrowBoardGame = async () => {
     try {
@@ -166,12 +199,18 @@ function ListGames() {
         return;
       }
 
-      await axios.post(`boardgames/borrow`, {
-        boardgame_id: selectedBoardGame.id,
-        first_name: firstName,
-        last_name: lastName,
-        document_number: documentNumber
-      });
+      await axios.post(
+        `boardgames/borrow`,
+        {
+          boardgame_id: selectedBoardGame.id,
+          first_name: firstName,
+          last_name: lastName,
+          document_number: documentNumber
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
 
       setSelectedBoardGame(null);
       setFirstName('');
@@ -183,31 +222,38 @@ function ListGames() {
     }
   };
 
-
   const handleReturnBoardGame = async (boardGame) => {
     try {
       if (boardGame.is_available) {
         alert('This board game is not currently borrowed.');
         return;
       }
-      const rental = await axios.get(`rentalByBoardgameId/${boardGame.id}`);
+      const rental = await axios.get(`rentalByBoardgameId/${boardGame.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
       if (!rental.data) {
         alert('Rental not found.');
         return;
       }
-      await axios.post(`boardgames/return`, {
-        rental_id: rental.data.id
-      });
+      await axios.post(
+        `boardgames/return`,
+        {
+          rental_id: rental.data.id
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
       fetchBoardGames();
 
       // Open the review dialog
       setOpenReviewDialog(true);
-      setCurrentReturnedGameId(rental.data.id);  // Save the ID of the returned game for later
+      setCurrentReturnedGameId(rental.data.id); // Save the ID of the returned game for later
     } catch (error) {
       console.error(error);
     }
   };
-
 
   const handleImportCSV = (e) => {
     const file = e.target.files[0];
@@ -224,7 +270,15 @@ function ListGames() {
             max_players: parseInt(game.max_players, 10)
           }));
 
-          await axios.post(`boardgames/bulk-import`, { boardgames: importedBoardGames });
+          await axios.post(
+            `boardgames/bulk-import`,
+            {
+              boardgames: importedBoardGames
+            },
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            }
+          );
           const response = await axios.get(`boardgames`);
           setBoardGames(response.data);
         } catch (error) {
@@ -251,12 +305,18 @@ function ListGames() {
 
   const handleAddReview = async () => {
     try {
-      const response = await axios.post(`rentals/${currentReturnedGameId}/review`, {
-        rating,
-        review
-      });
+      await axios.post(
+        `rentals/${currentReturnedGameId}/review`,
+        {
+          rating,
+          review
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
 
-      setOpenReviewDialog(false);  // Close the dialog
+      setOpenReviewDialog(false); // Close the dialog
       setCurrentReturnedGameId(null);
       alert('Review added successfully');
     } catch (error) {
@@ -272,31 +332,70 @@ function ListGames() {
   };
 
   const navigateToManageUsers = () => {
-    navigate("/manage-users")
-  }
+    navigate('/manage-users');
+  };
 
+  const fetchBoardGames = async () => {
+    try {
+      setLoading(true);
+      console.log({
+        search: searchText,
+        minPlayers: filterMinPlayers,
+        maxPlayers: filterMaxPlayers,
+        avgRating: filterAvgRating
+      });
+      const response = await axios.get('boardgames', {
+        params: {
+          search: searchText,
+          minPlayers: filterMinPlayers,
+          maxPlayers: filterMaxPlayers,
+          avgRating: filterAvgRating
+        }
+      });
+      console.log(response.data);
+      setBoardGames(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleFilterButtonClick = () => {
+    setOpenFilterModal(true);
+  };
+
+  const handleFilterSave = () => {
+    setOpenFilterModal(false);
+  };
+
+  const handleFilterReset = () => {
+    setFilterMinPlayers('');
+    setFilterMaxPlayers('');
+    setFilterAvgRating('');
+    setSearchText('');
+  };
 
   return (
-    <div>
+    <Box>
       <Dialog open={openReviewDialog} onClose={() => setOpenReviewDialog(false)}>
         <DialogTitle>Add Your Review</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label='Rating (0-5)'
+            label="Rating (0-5)"
             value={rating}
             onChange={(e) => setRating(e.target.value)}
           />
           <TextField
             fullWidth
-            label='Review'
+            label="Review"
             value={review}
             onChange={(e) => setReview(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenReviewDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddReview} color='primary'>
+          <Button onClick={handleAddReview} color="primary">
             Submit
           </Button>
         </DialogActions>
@@ -307,195 +406,288 @@ function ListGames() {
         <DialogContent>
           <TextField
             autoFocus
-            margin='dense'
-            id='first-name'
-            label='First Name'
-            type='text'
+            margin="dense"
+            id="first-name"
+            label="First Name"
+            type="text"
             fullWidth
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
           <TextField
-            margin='dense'
-            id='last-name'
-            label='Last Name'
-            type='text'
+            margin="dense"
+            id="last-name"
+            label="Last Name"
+            type="text"
             fullWidth
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
           <TextField
-            margin='dense'
-            id='document-id'
-            label='Document Id'
-            type='text'
+            margin="dense"
+            id="document-id"
+            label="Document Id"
+            type="text"
             fullWidth
             value={documentNumber}
             onChange={(e) => setDocumentNumber(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setBorrowOpen(false)} color='primary'>
+          <Button onClick={() => setBorrowOpen(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleBorrowBoardGame} color='primary'>
+          <Button onClick={handleBorrowBoardGame} color="primary">
             Borrow
           </Button>
         </DialogActions>
       </Dialog>
-      {currentUser?.role === 'admin' && (
-        <>
-      <Button
-        className={classes.button}
-        variant='contained'
-        color='primary'
-        startIcon={<AddIcon />}
-        onClick={handleAddClick}>
-        Add Board Game
-      </Button>
-      <Button
-        className={classes.button}
-        variant='contained'
-        component='label'
-        color='primary'
-        startIcon={<CloudUpload />}>
-        Import Board Games
-        <input
-          style={{ display: 'none' }}
-          id='import-csv'
-          type='file'
-          accept='.csv'
-          onChange={handleImportCSV}
+
+      <Box
+        sx={{
+          margin: '20px',
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'flex-start'
+        }}>
+        {currentUser?.role === 'admin' && (
+          <>
+            <Button
+              sx={{ margin: '20px' }}
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleAddClick}>
+              Add Board Game
+            </Button>
+            <Button
+              variant="contained"
+              component="label"
+              color="primary"
+              sx={{ marginLeft: '20px' }}
+              startIcon={<CloudUpload />}>
+              Import Board Games
+              <input
+                style={{ display: 'none' }}
+                id="import-csv"
+                type="file"
+                accept=".csv"
+                onChange={handleImportCSV}
+              />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ marginLeft: '20px' }}
+              startIcon={<Save />}
+              onClick={exportBoardGamesToCSV}>
+              Export Board Games
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ marginLeft: '20px' }}
+              startIcon={<ManageAccounts />}
+              onClick={navigateToManageUsers}>
+              Manage Users
+            </Button>
+          </>
+        )}
+        <Button variant="contained" color="secondary" onClick={handleLogout} startIcon={<Logout />}>
+          Logout
+        </Button>
+      </Box>
+
+      <Box sx={{ marginLeft: '20px' }}>
+        <Typography variant="h3">List of Board Games</Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'row', margin: '20px' }}>
+        <TextField
+          label="Search"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          fullWidth
         />
-      </Button>
-      <Button
-        className={classes.button}
-        variant='contained'
-        color='primary'
-        startIcon={<Save />}
-        onClick={exportBoardGamesToCSV}>
-        Export Board Games
-      </Button>
-          <Button
-            className={classes.button}
-            variant='contained'
-            color='primary'
-            startIcon={<ManageAccounts />}
-            onClick={navigateToManageUsers}>
-            Manage Users
+        <Button variant="contained" color="primary" onClick={handleFilterReset}>
+          Reset
+        </Button>
+        <Button variant="contained" color="primary" onClick={handleFilterButtonClick}>
+          Filter
+        </Button>
+      </Box>
+      <Dialog open={openFilterModal} onClose={() => setOpenFilterModal(false)}>
+        <DialogTitle>Filter Board Games</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Minimum Players"
+            value={filterMinPlayers}
+            onChange={(e) => setFilterMinPlayers(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Maximum Players"
+            value={filterMaxPlayers}
+            onChange={(e) => setFilterMaxPlayers(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Minimum Average Rating"
+            value={filterAvgRating}
+            onChange={(e) => setFilterAvgRating(e.target.value)}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenFilterModal(false)}>Cancel</Button>
+          <Button onClick={handleFilterSave} color="primary">
+            Save Filter
           </Button>
-        </>
-      )}
-      <Button className={classes.button} variant='contained' color='secondary' onClick={handleLogout}
-              startIcon={<Logout />}>
-        Logout
-      </Button>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Min/Max Players</TableCell>
-              <TableCell>Start Rental Date</TableCell>
-              <TableCell>First name and Last name</TableCell>
-              <TableCell align='center'>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {boardGames.map((boardGame) =>
-              (<TableRow key={boardGame.id}>
-                <TableCell>{boardGame.name}</TableCell>
-                <TableCell>{boardGame.description}</TableCell>
-                <TableCell>{boardGame.category}</TableCell>
-                <TableCell>{boardGame.min_players + ' / ' + boardGame.max_players}</TableCell>
-                <TableCell>{boardGame.first_name + ' ' + boardGame.last_name}</TableCell>
-                <TableCell>
-                  {boardGame.rental_start_date > 0
-                    ? new Date(boardGame.rental_start_date).toLocaleDateString()
-                    : ''}
-                </TableCell>
-                <TableCell align='center'>
-                  {currentUser?.role === 'admin' && (
-                    <>
-                  <IconButton onClick={() => handleEditClick(boardGame)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleDeleteClick(boardGame)}>
-                    <DeleteIcon />
-                  </IconButton>
-                  </>)}
-                  <Button
-                    disabled={!Boolean(boardGame.is_available)}
-                    variant='contained'
-                    color='primary'
-                    onClick={() => {
-                      setSelectedBoardGame(boardGame);
-                      setBorrowOpen(true);
-                    }}
-                  >
-                    Borrow
-                  </Button>
-                  <Button
-                    disabled={Boolean(boardGame.is_available)}
-                    variant='contained'
-                    color='secondary'
-                    onClick={() => handleReturnBoardGame(boardGame)}>
-                    Return
-                  </Button>
-                  <Button variant='contained' color='primary' component={Link} to={`/rentals/${boardGame.id}`}>View
-                    Rentals</Button>
-                </TableCell>
-              </TableRow>)
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        </DialogActions>
+      </Dialog>
+      <Box sx={{ margin: '20px' }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Cover</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Barcode</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Min/Max Players</TableCell>
+                <TableCell>Start Rental Date</TableCell>
+                <TableCell>First name and Last name</TableCell>
+                <TableCell>AVG Rating</TableCell>
+                <TableCell align="center">Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <p>Loading...</p>
+              ) : (
+                boardGames.map((boardGame) => (
+                  <TableRow key={boardGame.id}>
+                    <TableCell>
+                      <img
+                        src={
+                          !boardGame.cover
+                            ? 'http://localhost:3000/uploads/board-game.png'
+                            : 'http://localhost:3000/' + boardGame.cover
+                        }
+                        alt={boardGame.name}
+                        width="100"
+                        height="100"
+                      />
+                    </TableCell>
+                    <TableCell>{boardGame.name}</TableCell>
+                    <TableCell>{boardGame.barcode}</TableCell>
+                    <TableCell>{boardGame.category}</TableCell>
+                    <TableCell>{boardGame.min_players + ' / ' + boardGame.max_players}</TableCell>
+                    <TableCell>{boardGame.first_name + ' ' + boardGame.last_name}</TableCell>
+                    <TableCell>
+                      {boardGame.rental_start_date > 0
+                        ? new Date(boardGame.rental_start_date).toLocaleDateString()
+                        : ''}
+                    </TableCell>
+                    <TableCell>{boardGame.avg_rating}</TableCell>
+                    <TableCell align="center">
+                      {currentUser?.role === 'admin' && (
+                        <>
+                          <IconButton onClick={() => handleEditClick(boardGame)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleDeleteClick(boardGame)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </>
+                      )}
+                      <Button
+                        disabled={!Boolean(boardGame.is_available)}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          setSelectedBoardGame(boardGame);
+                          setBorrowOpen(true);
+                        }}>
+                        Borrow
+                      </Button>
+                      <Button
+                        disabled={Boolean(boardGame.is_available)}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleReturnBoardGame(boardGame)}>
+                        Return
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        component={Link}
+                        to={`/rentals/${boardGame.id}`}>
+                        View Rentals
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>{editId ? 'Edit Board Game' : 'Add Board Game'}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label='Name'
+            label="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <TextField
             fullWidth
-            label='Description'
+            label="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <TextField
             fullWidth
-            label='Category'
+            label="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
           <TextField
             fullWidth
-            label='Minimum Players'
+            label="Minimum Players"
             value={minPlayers}
-            type='number'
+            type="number"
             onChange={(e) => setMinPlayers(e.target.value)}
           />
           <TextField
             fullWidth
-            label='Maximum Players'
+            label="Maximum Players"
             value={maxPlayers}
-            type='number'
+            type="number"
             onChange={(e) => setMaxPlayers(e.target.value)}
           />
+          <TextField
+            fullWidth
+            label="Barcode"
+            value={barcode}
+            type="number"
+            onChange={(e) => setBarcode(e.target.value)}
+          />
+          <FormControl fullWidth>
+            <InputLabel htmlFor="cover-upload">Cover Image</InputLabel>
+            <Input id="cover-upload" type="file" onChange={handleFileChange} />
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={editId ? handleEditBoardGame : handleAddBoardGame} color='primary'>
+          <Button onClick={editId ? handleEditBoardGame : handleAddBoardGame} color="primary">
             {editId ? 'Save' : 'Add'}
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 }
 
