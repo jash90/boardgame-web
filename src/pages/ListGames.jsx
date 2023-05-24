@@ -338,12 +338,6 @@ function ListGames() {
   const fetchBoardGames = async () => {
     try {
       setLoading(true);
-      console.log({
-        search: searchText,
-        minPlayers: filterMinPlayers,
-        maxPlayers: filterMaxPlayers,
-        avgRating: filterAvgRating
-      });
       const response = await axios.get('boardgames', {
         params: {
           search: searchText,
@@ -352,7 +346,6 @@ function ListGames() {
           avgRating: filterAvgRating
         }
       });
-      console.log(response.data);
       setBoardGames(response.data);
       setLoading(false);
     } catch (error) {
