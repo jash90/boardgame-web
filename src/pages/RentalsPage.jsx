@@ -58,10 +58,10 @@ function RentalsPage() {
 
       {currentUser?.role === 'admin' && (
         <>
-      <Button variant="contained" color="secondary" onClick={handleClearRatings}>
-        Clear Ratings
-      </Button>
-      </>)}
+          <Button variant='contained' color='secondary' onClick={handleClearRatings}>
+            Clear Ratings
+          </Button>
+        </>)}
 
       <h2>Rentals for {gameName}</h2>
       <TableContainer>
@@ -78,18 +78,18 @@ function RentalsPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-                {rentals.map((rental) => (
-                  <TableRow key={rental.id}>
-                    <TableCell>{rental.first_name}</TableCell>
-                    <TableCell>{rental.last_name}</TableCell>
-                    <TableCell>{rental.document_number}</TableCell>
-                    <TableCell>{new Date(rental.rental_start_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(rental.rental_end_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{rental.rating}</TableCell>  {/* New field */}
-                    <TableCell>{rental.review}</TableCell>  {/* New field */}
-                  </TableRow>
-                ))}
-              </TableBody>
+            {rentals.map((rental) => (
+              <TableRow key={rental.id}>
+                <TableCell>{rental.first_name}</TableCell>
+                <TableCell>{rental.last_name}</TableCell>
+                <TableCell>{rental.document_number}</TableCell>
+                <TableCell>{new Date(rental.rental_start_date).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(rental.rental_end_date).toLocaleDateString()}</TableCell>
+                <TableCell>{rental.rating}</TableCell> {/* New field */}
+                <TableCell>{rental.review}</TableCell> {/* New field */}
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </TableContainer>
     </div>

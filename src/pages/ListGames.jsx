@@ -1,11 +1,15 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  Input,
+  InputLabel,
   Table,
   TableBody,
   TableCell,
@@ -13,23 +17,12 @@ import {
   TableHead,
   TableRow,
   TextField,
-  FormControl,
-  Input,
-  InputLabel,
-  Box,
   Typography
 } from '@material-ui/core';
-import {
-  Add as AddIcon,
-  CloudUpload,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Save
-} from '@material-ui/icons';
+import { Add as AddIcon, CloudUpload, Delete as DeleteIcon, Edit as EditIcon, Save } from '@material-ui/icons';
 import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
-import { makeStyles } from '@material-ui/core/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logout, ManageAccounts } from '@mui/icons-material';
 import { useAtom } from 'jotai';
@@ -55,7 +48,7 @@ function ListGames() {
   const [review, setReview] = useState('');
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
   const [currentReturnedGameId, setCurrentReturnedGameId] = useState(null);
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [currentUser] = useAtom(currentUserAtom);
   const [coverFile, setCoverFile] = useState(null);
   const [barcode, setBarcode] = useState('');
   const [openFilterModal, setOpenFilterModal] = useState(false);
@@ -66,6 +59,36 @@ function ListGames() {
   const [loading, setLoading] = useState(false);
   const [debouncedSearchText, setDebouncedSearchText] = useState(searchText);
   const searchTimeoutRef = useRef(null);
+
+  const fetchBoardGames = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('boardgames', {
+        params: {
+          search: searchText,
+          minPlayers: filterMinPlayers,
+          maxPlayers: filterMaxPlayers,
+          avgRating: filterAvgRating
+        }
+      });
+      setBoardGames(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBoardGames();
+  }, [
+    debouncedSearchText,
+    filterMinPlayers,
+    filterMaxPlayers,
+    filterAvgRating,
+    currentUser,
+    currentUser?.role,
+    fetchBoardGames
+  ]);
 
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -81,16 +104,6 @@ function ListGames() {
     };
   }, [searchText]);
 
-  useEffect(() => {
-    fetchBoardGames();
-  }, [
-    debouncedSearchText,
-    filterMinPlayers,
-    filterMaxPlayers,
-    filterAvgRating,
-    currentUser,
-    currentUser?.role
-  ]);
 
   // Handle file change
   const handleFileChange = (e) => {
@@ -335,23 +348,6 @@ function ListGames() {
     navigate('/manage-users');
   };
 
-  const fetchBoardGames = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('boardgames', {
-        params: {
-          search: searchText,
-          minPlayers: filterMinPlayers,
-          maxPlayers: filterMaxPlayers,
-          avgRating: filterAvgRating
-        }
-      });
-      setBoardGames(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleFilterButtonClick = () => {
     setOpenFilterModal(true);
@@ -375,20 +371,20 @@ function ListGames() {
         <DialogContent>
           <TextField
             fullWidth
-            label="Rating (0-5)"
+            label='Rating (0-5)'
             value={rating}
             onChange={(e) => setRating(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Review"
+            label='Review'
             value={review}
             onChange={(e) => setReview(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenReviewDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddReview} color="primary">
+          <Button onClick={handleAddReview} color='primary'>
             Submit
           </Button>
         </DialogActions>
@@ -399,38 +395,38 @@ function ListGames() {
         <DialogContent>
           <TextField
             autoFocus
-            margin="dense"
-            id="first-name"
-            label="First Name"
-            type="text"
+            margin='dense'
+            id='first-name'
+            label='First Name'
+            type='text'
             fullWidth
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
           <TextField
-            margin="dense"
-            id="last-name"
-            label="Last Name"
-            type="text"
+            margin='dense'
+            id='last-name'
+            label='Last Name'
+            type='text'
             fullWidth
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
           <TextField
-            margin="dense"
-            id="document-id"
-            label="Document Id"
-            type="text"
+            margin='dense'
+            id='document-id'
+            label='Document Id'
+            type='text'
             fullWidth
             value={documentNumber}
             onChange={(e) => setDocumentNumber(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setBorrowOpen(false)} color="primary">
+          <Button onClick={() => setBorrowOpen(false)} color='primary'>
             Cancel
           </Button>
-          <Button onClick={handleBorrowBoardGame} color="primary">
+          <Button onClick={handleBorrowBoardGame} color='primary'>
             Borrow
           </Button>
         </DialogActions>
@@ -447,38 +443,38 @@ function ListGames() {
           <>
             <Button
               sx={{ margin: '20px' }}
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               startIcon={<AddIcon />}
               onClick={handleAddClick}>
               Add Board Game
             </Button>
             <Button
-              variant="contained"
-              component="label"
-              color="primary"
+              variant='contained'
+              component='label'
+              color='primary'
               sx={{ marginLeft: '20px' }}
               startIcon={<CloudUpload />}>
               Import Board Games
               <input
                 style={{ display: 'none' }}
-                id="import-csv"
-                type="file"
-                accept=".csv"
+                id='import-csv'
+                type='file'
+                accept='.csv'
                 onChange={handleImportCSV}
               />
             </Button>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               sx={{ marginLeft: '20px' }}
               startIcon={<Save />}
               onClick={exportBoardGamesToCSV}>
               Export Board Games
             </Button>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               sx={{ marginLeft: '20px' }}
               startIcon={<ManageAccounts />}
               onClick={navigateToManageUsers}>
@@ -486,26 +482,26 @@ function ListGames() {
             </Button>
           </>
         )}
-        <Button variant="contained" color="secondary" onClick={handleLogout} startIcon={<Logout />}>
+        <Button variant='contained' color='secondary' onClick={handleLogout} startIcon={<Logout />}>
           Logout
         </Button>
       </Box>
 
       <Box sx={{ marginLeft: '20px' }}>
-        <Typography variant="h3">List of Board Games</Typography>
+        <Typography variant='h3'>List of Board Games</Typography>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'row', margin: '20px' }}>
         <TextField
-          label="Search"
+          label='Search'
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           fullWidth
         />
-        <Button variant="contained" color="primary" onClick={handleFilterReset}>
+        <Button variant='contained' color='primary' onClick={handleFilterReset}>
           Reset
         </Button>
-        <Button variant="contained" color="primary" onClick={handleFilterButtonClick}>
+        <Button variant='contained' color='primary' onClick={handleFilterButtonClick}>
           Filter
         </Button>
       </Box>
@@ -513,19 +509,19 @@ function ListGames() {
         <DialogTitle>Filter Board Games</DialogTitle>
         <DialogContent>
           <TextField
-            label="Minimum Players"
+            label='Minimum Players'
             value={filterMinPlayers}
             onChange={(e) => setFilterMinPlayers(e.target.value)}
             fullWidth
           />
           <TextField
-            label="Maximum Players"
+            label='Maximum Players'
             value={filterMaxPlayers}
             onChange={(e) => setFilterMaxPlayers(e.target.value)}
             fullWidth
           />
           <TextField
-            label="Minimum Average Rating"
+            label='Minimum Average Rating'
             value={filterAvgRating}
             onChange={(e) => setFilterAvgRating(e.target.value)}
             fullWidth
@@ -533,7 +529,7 @@ function ListGames() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenFilterModal(false)}>Cancel</Button>
-          <Button onClick={handleFilterSave} color="primary">
+          <Button onClick={handleFilterSave} color='primary'>
             Save Filter
           </Button>
         </DialogActions>
@@ -551,7 +547,7 @@ function ListGames() {
                 <TableCell>Start Rental Date</TableCell>
                 <TableCell>First name and Last name</TableCell>
                 <TableCell>AVG Rating</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align='center'>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -568,8 +564,8 @@ function ListGames() {
                             : 'http://localhost:3000/' + boardGame.cover
                         }
                         alt={boardGame.name}
-                        width="100"
-                        height="100"
+                        width='100'
+                        height='100'
                       />
                     </TableCell>
                     <TableCell>{boardGame.name}</TableCell>
@@ -583,7 +579,7 @@ function ListGames() {
                         : ''}
                     </TableCell>
                     <TableCell>{boardGame.avg_rating}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align='center'>
                       {currentUser?.role === 'admin' && (
                         <>
                           <IconButton onClick={() => handleEditClick(boardGame)}>
@@ -596,8 +592,8 @@ function ListGames() {
                       )}
                       <Button
                         disabled={!Boolean(boardGame.is_available)}
-                        variant="contained"
-                        color="primary"
+                        variant='contained'
+                        color='primary'
                         onClick={() => {
                           setSelectedBoardGame(boardGame);
                           setBorrowOpen(true);
@@ -606,14 +602,14 @@ function ListGames() {
                       </Button>
                       <Button
                         disabled={Boolean(boardGame.is_available)}
-                        variant="contained"
-                        color="secondary"
+                        variant='contained'
+                        color='secondary'
                         onClick={() => handleReturnBoardGame(boardGame)}>
                         Return
                       </Button>
                       <Button
-                        variant="contained"
-                        color="primary"
+                        variant='contained'
+                        color='primary'
                         component={Link}
                         to={`/rentals/${boardGame.id}`}>
                         View Rentals
@@ -631,51 +627,51 @@ function ListGames() {
         <DialogContent>
           <TextField
             fullWidth
-            label="Name"
+            label='Name'
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Description"
+            label='Description'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Category"
+            label='Category'
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Minimum Players"
+            label='Minimum Players'
             value={minPlayers}
-            type="number"
+            type='number'
             onChange={(e) => setMinPlayers(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Maximum Players"
+            label='Maximum Players'
             value={maxPlayers}
-            type="number"
+            type='number'
             onChange={(e) => setMaxPlayers(e.target.value)}
           />
           <TextField
             fullWidth
-            label="Barcode"
+            label='Barcode'
             value={barcode}
-            type="number"
+            type='number'
             onChange={(e) => setBarcode(e.target.value)}
           />
           <FormControl fullWidth>
-            <InputLabel htmlFor="cover-upload">Cover Image</InputLabel>
-            <Input id="cover-upload" type="file" onChange={handleFileChange} />
+            <InputLabel htmlFor='cover-upload'>Cover Image</InputLabel>
+            <Input id='cover-upload' type='file' onChange={handleFileChange} />
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={editId ? handleEditBoardGame : handleAddBoardGame} color="primary">
+          <Button onClick={editId ? handleEditBoardGame : handleAddBoardGame} color='primary'>
             {editId ? 'Save' : 'Add'}
           </Button>
         </DialogActions>

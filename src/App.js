@@ -19,7 +19,7 @@ function App() {
       const fetchUserData = async (token) => {
         try {
           const response = await axios.get('user', {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` }
           });
           setCurrentUser(response.data);
         } catch (error) {
@@ -34,18 +34,18 @@ function App() {
   return (
     <Provider>
       <Router>
-      <Routes>
-        <Route path='/' element={<PrivateRoute />}>
-          <Route index element={<ListGames />} />
-        </Route>
-        <Route path='/rentals/:gameId/' element={<PrivateRoute />}>
-          <Route index element={<RentalsPage />} />
-        </Route>
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/manage-users' element={<ManageUsers />} />
-        {/*<Route path="*" element={<Navigate to="/" />} />*/}
-      </Routes>
+        <Routes>
+          <Route path='/' element={<PrivateRoute />}>
+            <Route index element={<ListGames />} />
+          </Route>
+          <Route path='/rentals/:gameId/' element={<PrivateRoute />}>
+            <Route index element={<RentalsPage />} />
+          </Route>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/manage-users' element={<ManageUsers />} />
+          {/*<Route path="*" element={<Navigate to="/" />} />*/}
+        </Routes>
       </Router>
     </Provider>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TextField, Button, Card, CardContent, makeStyles } from '@material-ui/core';
+import { Button, Card, CardContent, makeStyles, TextField } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 import { useAtom } from 'jotai/index';
@@ -10,15 +10,15 @@ const useStyles = makeStyles({
     maxWidth: 400,
     margin: '0 auto',
     padding: '20px 30px',
-    marginTop: 50,
+    marginTop: 50
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 20
   },
   button: {
-    marginTop: 20, // Add some margin to the top of the button
-  },
+    marginTop: 20 // Add some margin to the top of the button
+  }
 });
 
 const Register = () => {
@@ -53,7 +53,7 @@ const Register = () => {
     try {
       await axios.post('register', {
         email,
-        password,
+        password
       });
 
       setEmail('');
@@ -70,15 +70,15 @@ const Register = () => {
       });
       setCurrentUser(userData);
       if (userData) {
-        navigate("/")
+        navigate('/');
       }
-    }catch (e) {
+    } catch (e) {
 
     }
-  }
+  };
 
   useEffect(() => {
-    navigateToHome()
+    navigateToHome();
   }, []);
 
 
@@ -86,12 +86,15 @@ const Register = () => {
     <Card className={classes.card}>
       <CardContent>
         <h2 className={classes.title}>Register</h2>
-        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Email' value={email} onChange={handleUsernameChange} fullWidth />
-        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password' type='password' value={password} onChange={handlePasswordChange} fullWidth />
+        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Email'
+                   value={email} onChange={handleUsernameChange} fullWidth />
+        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password'
+                   type='password' value={password} onChange={handlePasswordChange} fullWidth />
         <Button variant='contained' color='primary' onClick={handleRegister} fullWidth>
           Register
         </Button>
-        <Button variant='outlined' color='primary' onClick={() => navigate('/login')} className={classes.button} fullWidth>
+        <Button variant='outlined' color='primary' onClick={() => navigate('/login')} className={classes.button}
+                fullWidth>
           Login
         </Button>
       </CardContent>

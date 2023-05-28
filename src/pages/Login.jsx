@@ -77,15 +77,15 @@ const Login = () => {
       });
       setCurrentUser(userData);
       if (userData) {
-        navigate("/")
+        navigate('/');
       }
-    }catch (e) {
+    } catch (e) {
 
     }
-  }
+  };
 
   useEffect(() => {
-    navigateToHome()
+    navigateToHome();
   }, []);
 
   return (
