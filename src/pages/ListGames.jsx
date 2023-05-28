@@ -24,7 +24,7 @@ import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Logout, ManageAccounts } from '@mui/icons-material';
+import { Logout, ManageAccounts, Password } from '@mui/icons-material';
 import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
 import axios from '../api/axios';
@@ -348,6 +348,10 @@ function ListGames() {
     navigate('/manage-users');
   };
 
+  const handleChangePassword = () => {
+    navigate('/change-password');
+  };
+
 
   const handleFilterButtonClick = () => {
     setOpenFilterModal(true);
@@ -482,6 +486,9 @@ function ListGames() {
             </Button>
           </>
         )}
+        <Button variant='contained' color='primary' onClick={handleChangePassword} startIcon={<Password />}>
+          Change Password
+        </Button>
         <Button variant='contained' color='secondary' onClick={handleLogout} startIcon={<Logout />}>
           Logout
         </Button>

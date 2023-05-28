@@ -9,6 +9,7 @@ import { currentUserAtom } from './jotai/models';
 import { useEffect } from 'react';
 import axios from './api/axios';
 import PrivateRoute from './navigation/PrivateRoute';
+import ChangePassword from './pages/ChangePassword';
 
 function App() {
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
@@ -44,6 +45,7 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/manage-users' element={<ManageUsers />} />
+          <Route path='/change-password' element={<ChangePassword />} />
           {/*<Route path="*" element={<Navigate to="/" />} />*/}
         </Routes>
       </Router>
