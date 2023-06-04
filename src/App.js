@@ -17,7 +17,7 @@ function App() {
     const token = localStorage.getItem('token');
 
     if (token) {
-      const fetchUserData = async (token) => {
+      const fetchUserData = async () => {
         try {
           const response = await axios.get('user', {
             headers: { Authorization: `Bearer ${token}` }
@@ -27,25 +27,26 @@ function App() {
           console.error('Failed to load user data:', error);
         }
       };
-      fetchUserData(token);
+      fetchUserData();
     }
   }, []);
-
 
   return (
     <Provider>
       <Router>
         <Routes>
-          <Route path='/' element={<PrivateRoute />}>
+          <Route path="/" element={<PrivateRoute />}>
             <Route index element={<ListGames />} />
           </Route>
-          <Route path='/rentals/:gameId/' element={<PrivateRoute />}>
+          <Route path="/rentals/:gameId/" element={<PrivateRoute />}>
             <Route index element={<RentalsPage />} />
           </Route>
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/manage-users' element={<ManageUsers />} />
-          <Route path='/change-password' element={<ChangePassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/manage-users" element={<PrivateRoute />}>
+            <Route index element={<ManageUsers />} />
+          </Route>
+          <Route path="/change-password" element={<ChangePassword />} />
           {/*<Route path="*" element={<Navigate to="/" />} />*/}
         </Routes>
       </Router>
