@@ -28,7 +28,7 @@ function RentalsPage() {
     try {
       const response = await axios.get(`rentals/${gameId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       setRentals(response.data.rentals);
@@ -48,7 +48,7 @@ function RentalsPage() {
   const handleClearRatings = async () => {
     try {
       await axios.delete(`rentals/${gameId}/clearRatings`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       fetchRentals();
     } catch (error) {
@@ -91,7 +91,11 @@ function RentalsPage() {
                 <TableCell>{rental.last_name}</TableCell>
                 <TableCell>{rental.document_number}</TableCell>
                 <TableCell>{new Date(rental.rental_start_date).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(rental.rental_end_date).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {rental.rental_end_date
+                    ? new Date(rental.rental_end_date).toLocaleDateString()
+                    : ''}
+                </TableCell>
                 <TableCell>{rental.rating}</TableCell> {/* New field */}
                 <TableCell>{rental.review}</TableCell> {/* New field */}
               </TableRow>

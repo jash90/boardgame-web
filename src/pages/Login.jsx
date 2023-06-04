@@ -61,7 +61,7 @@ const Login = () => {
       localStorage.setItem('token', token);
 
       const { data: userData } = await axios.get(`user`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setCurrentUser(userData);
       setEmail('');

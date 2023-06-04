@@ -66,7 +66,7 @@ const Register = () => {
   const navigateToHome = async () => {
     try {
       const { data: userData } = await axios.get(`user`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setCurrentUser(userData);
       if (userData) {

@@ -585,8 +585,8 @@ function ListGames() {
                         ? new Date(boardGame.rental_start_date).toLocaleDateString()
                         : ''}
                     </TableCell>
-                    <TableCell>{boardGame.avg_rating}</TableCell>
-                    <TableCell align='center'>
+                    <TableCell>{Number(boardGame.avg_rating).toFixed(2)}</TableCell>
+                    <TableCell align="center">
                       {currentUser?.role === 'admin' && (
                         <>
                           <IconButton onClick={() => handleEditClick(boardGame)}>
