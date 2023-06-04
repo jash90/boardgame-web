@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@material-ui/core';
 import axios from '../api/axios';
+import { useNavigate } from 'react-router-dom';
+import { Logout } from '@mui/icons-material';
 
 const ChangePasswordPage = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const navigate = useNavigate(); // Add this
 
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -20,11 +23,14 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      const response = await axios.post('/change-password', {
+      const response = await axios.post(
+        '/change-password',
+        {
           currentPassword,
           newPassword
-        }, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }
       );
 
@@ -44,46 +50,47 @@ const ChangePasswordPage = () => {
     }
   };
 
+  const back = () => {
+    navigate('/');
+  };
 
   return (
     <Box>
-
-      <Typography variant='h5'>Change Password</Typography>
+      <Button variant="contained" color="secondary" onClick={back} startIcon={<Logout />}>
+        Go back
+      </Button>
+      <Typography variant="h5">Change Password</Typography>
 
       <TextField
         autoFocus
-        margin='dense'
-        label='Current Password'
-        type='password'
+        margin="dense"
+        label="Current Password"
+        type="password"
         fullWidth
         value={currentPassword}
         onChange={(e) => setCurrentPassword(e.target.value)}
       />
       <TextField
-        margin='dense'
-        label='New Password'
-        type='password'
+        margin="dense"
+        label="New Password"
+        type="password"
         fullWidth
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
       />
       <TextField
-        margin='dense'
-        label='Confirm Password'
-        type='password'
+        margin="dense"
+        label="Confirm Password"
+        type="password"
         fullWidth
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
       {passwordError && <p>{passwordError}</p>}
-      <Button
-        variant='contained'
-        color='primary' onClick={handlePasswordChange}>
+      <Button variant="contained" color="primary" onClick={handlePasswordChange}>
         Change Password
       </Button>
     </Box>
-
-
   );
 };
 
