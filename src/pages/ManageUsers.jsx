@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
+} from '@material-ui/core';
 import axios from '../api/axios';
 import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
@@ -53,7 +61,7 @@ const ManageUsers = () => {
 
   return (
     <>
-      <Button variant='contained' color='secondary' onClick={back} startIcon={<Logout />}>
+      <Button variant="contained" color="secondary" onClick={back} startIcon={<Logout />}>
         Go back
       </Button>
       <h2>Manage Users</h2>
@@ -77,7 +85,7 @@ const ManageUsers = () => {
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
                   <Button
-                    variant='contained'
+                    variant="contained"
                     style={{ width: '200px' }}
                     color={user.role === 'admin' ? 'primary' : 'secondary'}
                     onClick={() =>

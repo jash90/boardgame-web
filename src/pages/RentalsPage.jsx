@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
+} from '@material-ui/core';
 import axios from '../api/axios';
 import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
@@ -12,9 +20,7 @@ function RentalsPage() {
   const [gameName, setGameName] = useState('');
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
-
   useEffect(() => {
-
     fetchRentals();
   }, [gameId]);
 
@@ -50,18 +56,19 @@ function RentalsPage() {
     }
   };
 
-
   return (
     <div>
-      <Button variant='contained'
-              color='primary' onClick={handleBackClick}>Go Back</Button>
+      <Button variant="contained" color="primary" onClick={handleBackClick}>
+        Go Back
+      </Button>
 
       {currentUser?.role === 'admin' && (
         <>
-          <Button variant='contained' color='secondary' onClick={handleClearRatings}>
+          <Button variant="contained" color="secondary" onClick={handleClearRatings}>
             Clear Ratings
           </Button>
-        </>)}
+        </>
+      )}
 
       <h2>Rentals for {gameName}</h2>
       <TableContainer>

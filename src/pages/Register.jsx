@@ -72,29 +72,43 @@ const Register = () => {
       if (userData) {
         navigate('/');
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
     navigateToHome();
   }, []);
 
-
   return (
     <Card className={classes.card}>
       <CardContent>
         <h2 className={classes.title}>Register</h2>
-        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Email'
-                   value={email} onChange={handleUsernameChange} fullWidth />
-        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password'
-                   type='password' value={password} onChange={handlePasswordChange} fullWidth />
-        <Button variant='contained' color='primary' onClick={handleRegister} fullWidth>
+        <TextField
+          error={usernameError}
+          helperText={usernameError ? 'Username is required' : ''}
+          label="Email"
+          value={email}
+          onChange={handleUsernameChange}
+          fullWidth
+        />
+        <TextField
+          error={passwordError}
+          helperText={passwordError ? 'Password is required' : ''}
+          label="Password"
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          fullWidth
+        />
+        <Button variant="contained" color="primary" onClick={handleRegister} fullWidth>
           Register
         </Button>
-        <Button variant='outlined' color='primary' onClick={() => navigate('/login')} className={classes.button}
-                fullWidth>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => navigate('/login')}
+          className={classes.button}
+          fullWidth>
           Login
         </Button>
       </CardContent>
@@ -103,4 +117,3 @@ const Register = () => {
 };
 
 export default Register;
-

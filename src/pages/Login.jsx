@@ -51,7 +51,9 @@ const Login = () => {
       return;
     }
     try {
-      const { data: { token } } = await axios.post(`login`, {
+      const {
+        data: { token }
+      } = await axios.post(`login`, {
         email,
         password
       });
@@ -73,15 +75,13 @@ const Login = () => {
   const navigateToHome = async () => {
     try {
       const { data: userData } = await axios.get(`user`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setCurrentUser(userData);
       if (userData) {
         navigate('/');
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -92,15 +92,32 @@ const Login = () => {
     <Card className={classes.card}>
       <CardContent>
         <h2 className={classes.title}>Login</h2>
-        <TextField error={usernameError} helperText={usernameError ? 'Username is required' : ''} label='Username'
-                   value={email} onChange={handleUsernameChange} fullWidth />
-        <TextField error={passwordError} helperText={passwordError ? 'Password is required' : ''} label='Password'
-                   type='password' value={password} onChange={handlePasswordChange} fullWidth />
-        <Button variant='contained' color='primary' onClick={handleLogin} fullWidth>
+        <TextField
+          error={usernameError}
+          helperText={usernameError ? 'Username is required' : ''}
+          label="Username"
+          value={email}
+          onChange={handleUsernameChange}
+          fullWidth
+        />
+        <TextField
+          error={passwordError}
+          helperText={passwordError ? 'Password is required' : ''}
+          label="Password"
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          fullWidth
+        />
+        <Button variant="contained" color="primary" onClick={handleLogin} fullWidth>
           Login
         </Button>
-        <Button variant='outlined' color='primary' onClick={() => navigate('/register')} className={classes.button}
-                fullWidth>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => navigate('/register')}
+          className={classes.button}
+          fullWidth>
           Register
         </Button>
       </CardContent>
