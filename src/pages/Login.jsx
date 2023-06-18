@@ -51,14 +51,13 @@ const Login = () => {
       return;
     }
     try {
-      const {
-        data: { token }
-      } = await axios.post(`login`, {
+      const { data } = await axios.post(`login`, {
         email,
         password
       });
 
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', data?.token);
+      localStorage.setItem('refreshToken', data?.refreshToken);
 
       const { data: userData } = await axios.get(`user`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }

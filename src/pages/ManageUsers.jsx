@@ -15,16 +15,14 @@ import { useNavigate } from 'react-router-dom';
 import { Logout } from '@mui/icons-material';
 
 const ManageUsers = () => {
-  const navigate = useNavigate(); // Add this
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [currentUser] = useAtom(currentUserAtom);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('users', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await axios.get('users');
         setUsers(response.data.users);
       } catch (error) {
         console.error(error);
@@ -40,10 +38,7 @@ const ManageUsers = () => {
     try {
       await axios.patch(
         `users/${userId}`,
-        { role: newRole },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
+        { role: newRole }
       );
       setUsers(users.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
     } catch (error) {

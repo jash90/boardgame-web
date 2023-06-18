@@ -12,30 +12,11 @@ import PrivateRoute from './navigation/PrivateRoute';
 import ChangePassword from './pages/ChangePassword';
 
 function App() {
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      const fetchUserData = async () => {
-        try {
-          const response = await axios.get('user', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setCurrentUser(response.data);
-        } catch (error) {
-          console.error('Failed to load user data:', error);
-        }
-      };
-      fetchUserData();
-    }
-  }, []);
-
   return (
     <Provider>
       <Router>
         <Routes>
-          <Route path="/" element={<PrivateRoute />}>
+          <Route path="/" element={<PrivateRoute  />}>
             <Route index element={<ListGames />} />
           </Route>
           <Route path="/rentals/:gameId/" element={<PrivateRoute />}>

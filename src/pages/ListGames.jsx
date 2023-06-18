@@ -276,6 +276,7 @@ function ListGames() {
             name: game.name,
             description: game.description,
             category: game.category,
+            barcode: game.barcode,
             min_players: parseInt(game.min_players, 10),
             max_players: parseInt(game.max_players, 10)
           }));
@@ -299,13 +300,13 @@ function ListGames() {
   };
 
   const exportBoardGamesToCSV = () => {
-    const headers = ['name', 'description', 'category', 'min_players', 'max_players'];
+    const headers = ['name', 'description', 'category', 'barcode', 'min_players', 'max_players'];
     const csvContent =
       headers.join(',') +
       '\n' +
       boardGames
         .map((game) =>
-          [game.name, game.description, game.category, game.min_players, game.max_players].join(',')
+          [game.name, game.description, game.category, game.barcode, game.min_players, game.max_players].join(',')
         )
         .join('\n');
 
@@ -336,7 +337,9 @@ function ListGames() {
 
   const handleLogout = () => {
     // remove the token from local storage
-    localStorage.removeItem('token');
+    localStorage.removeItem('token');   
+    localStorage.removeItem('refreshToken');
+
     // redirect to login page (or any other action you want to perform after logout)
     navigate('/login');
   };
