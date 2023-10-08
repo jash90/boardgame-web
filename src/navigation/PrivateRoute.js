@@ -17,6 +17,8 @@ function PrivateRoute() {
         console.error('Failed to load user data:', error);
         navigate('/login');
       }
+    } else {
+      navigate('/login');
     }
   }
 
