@@ -28,3 +28,4 @@ yarn-error.log*
 /.idea/boardgame-web.iml
 /.idea/modules.xml
 /.idea/vcs.xml
+/.env

@@ -337,7 +337,7 @@ function ListGames() {
 
   const handleLogout = () => {
     // remove the token from local storage
-    localStorage.removeItem('token');   
+    localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
 
     // redirect to login page (or any other action you want to perform after logout)
@@ -570,8 +570,8 @@ function ListGames() {
                       <img
                         src={
                           !boardGame.cover
-                            ? 'http://localhost:3000/uploads/board-game.png'
-                            : 'http://localhost:3000/' + boardGame.cover
+                            ? process.env.HOST + 'uploads/board-game.png'
+                            : process.env.HOST + boardGame.cover
                         }
                         alt={boardGame.name}
                         width="100"
