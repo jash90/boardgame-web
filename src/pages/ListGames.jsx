@@ -570,8 +570,8 @@ function ListGames() {
                       <img
                         src={
                           !boardGame.cover
-                            ? process.env.HOST + 'uploads/board-game.png'
-                            : process.env.HOST + boardGame.cover
+                            ? process.env.BACKEND + 'uploads/board-game.png'
+                            : process.env.BACKEND + boardGame.cover
                         }
                         alt={boardGame.name}
                         width="100"

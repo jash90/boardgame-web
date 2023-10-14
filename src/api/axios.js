@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: process.env.HOST,
+  baseURL: process.env.BACKEND,
   timeout: 10000,
   headers: {
     Authorization: `Bearer ${localStorage.getItem('token')}`,
