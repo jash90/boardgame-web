@@ -16,17 +16,11 @@ function App() {
     <Provider>
       <Router>
         <Routes>
-          <Route path="/" element={<PrivateRoute  />}>
-            <Route index element={<ListGames />} />
-          </Route>
-          <Route path="/rentals/:gameId/" element={<PrivateRoute />}>
-            <Route index element={<RentalsPage />} />
-          </Route>
+          <Route path="/" element={<ListGames />} />
+          <Route path="/rentals/:gameId/" element={<RentalsPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/manage-users" element={<PrivateRoute />}>
-            <Route index element={<ManageUsers />} />
-          </Route>
+          <Route path="/manage-users" element={<ManageUsers />} />
           <Route path="/change-password" element={<ChangePassword />} />
           {/*<Route path="*" element={<Navigate to="/" />} />*/}
         </Routes>
