@@ -1,32 +1,31 @@
-import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import { currentUserAtom } from '../jotai/models';
-import axios from '../api/axios';
+import React, { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function PrivateRoute() {
+
+
+const useConditionalRedirect = (auth, redirectPath) => {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
-  async function navigateToComponent() {
+
+  function authorized() {
     const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const response = await axios.get('user');
-        setCurrentUser(response.data);
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-        navigate('/login');
-      }
-    } else {
-      navigate('/login');
-    }
+    return !!token;
   }
 
+  const condition = useMemo(()=>{
+    return auth ? authorized() : !authorized()
+  },[auth])
+
+
   useEffect(() => {
-    navigateToComponent();
-  }, [currentUser?.id]);
+    if (!condition) {
+      navigate(redirectPath);
+    }
+  }, [condition, navigate, redirectPath]);
+};
 
-  return <Outlet />;
-}
+const ProtectedRoute = ({ auth, redirectPath, children }) => {
+  useConditionalRedirect(auth, redirectPath);
+  return auth ? children : null;
+};
 
-export default PrivateRoute;
+export default ProtectedRoute;
