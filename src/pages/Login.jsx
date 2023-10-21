@@ -71,21 +71,21 @@ const Login = () => {
     }
   };
 
-  const navigateToHome = async () => {
-    try {
-      const { data: userData } = await axios.get(`user`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setCurrentUser(userData);
-      if (userData) {
-        navigate('/');
-      }
-    } catch (e) {}
-  };
-
-  useEffect(() => {
-    navigateToHome();
-  }, []);
+  // const navigateToHome = async () => {
+  //   try {
+  //     const { data: userData } = await axios.get(`user`, {
+  //       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+  //     });
+  //     setCurrentUser(userData);
+  //     if (userData) {
+  //       navigate('/');
+  //     }
+  //   } catch (e) {}
+  // };
+  //
+  // useEffect(() => {
+  //   navigateToHome();
+  // }, []);
 
   return (
     <Card className={classes.card}>
