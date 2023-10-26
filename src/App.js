@@ -4,11 +4,8 @@ import RentalsPage from './pages/RentalsPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ManageUsers from './pages/ManageUsers';
-import { Provider, useAtom } from 'jotai';
-import { currentUserAtom } from './jotai/models';
-import { useEffect } from 'react';
-import axios from './api/axios';
-import PrivateRoute from './navigation/PrivateRoute';
+import { Provider } from 'jotai';
+import AuthRoute from './navigation/AuthRoute';
 import ChangePassword from './pages/ChangePassword';
 
 function App() {
@@ -16,11 +13,17 @@ function App() {
     <Provider>
       <Router>
         <Routes>
-          <Route path="/" element={<ListGames />} />
-          <Route path="/rentals/:gameId/" element={<RentalsPage />} />
+          <Route path="/" element={<AuthRoute  />}>
+            <Route index element={<ListGames />} />
+          </Route>
+          <Route path="/rentals/:gameId/" element={<AuthRoute />}>
+            <Route index element={<RentalsPage />} />
+          </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/manage-users" element={<ManageUsers />} />
+          <Route path="/manage-users" element={<AuthRoute />}>
+            <Route index element={<ManageUsers />} />
+          </Route>
           <Route path="/change-password" element={<ChangePassword />} />
           {/*<Route path="*" element={<Navigate to="/" />} />*/}
         </Routes>
