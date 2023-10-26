@@ -570,7 +570,7 @@ function ListGames() {
                       <img
                         src={
                           !boardGame.cover
-                            ? `${process.env.REACT_APP_BACKEND}/uploads/board-game.png`
+                            ? `${process.env.REACT_APP_BACKEND}/assets/board-game.png`
                             : `${process.env.REACT_APP_BACKEND}/${boardGame.cover}`
                         }
                         alt={boardGame.name}
