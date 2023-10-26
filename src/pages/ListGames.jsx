@@ -82,7 +82,7 @@ function ListGames() {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [searchText, filterMinPlayers, filterMaxPlayers, filterAvgRating]);
 
   useEffect(() => {
     fetchBoardGames();
