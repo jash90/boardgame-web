@@ -53,6 +53,12 @@ instance.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 403 && error.response?.data?.message === 'Unauthorized access') {
+        window.location = '/login'
+        localStorage.setItem("token", "");
+        localStorage.setItem("refreshToken","");
+    }
+
     // If error was not 401 or there's a problem refreshing the token, reject the promise
     return Promise.reject(error);
   }
