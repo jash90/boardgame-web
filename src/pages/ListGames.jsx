@@ -135,8 +135,8 @@ function ListGames() {
       formData.append('name', name);
       formData.append('description', description);
       formData.append('category', category);
-      formData.append('min_players', minPlayers);
-      formData.append('max_players', maxPlayers);
+      formData.append('minPlayers', minPlayers);
+      formData.append('maxPlayers', maxPlayers);
       formData.append('barcode', barcode);
       formData.append('cover', coverFile); // Add cover here
 
@@ -159,8 +159,8 @@ function ListGames() {
     setName(boardGame.name);
     setDescription(boardGame.description);
     setCategory(boardGame.category);
-    setMinPlayers(boardGame.min_players);
-    setMaxPlayers(boardGame.max_players);
+    setMinPlayers(boardGame.minPlayers);
+    setMaxPlayers(boardGame.maxPlayers);
     setOpen(true);
     setCoverFile(null);
     setBarcode('');
@@ -172,8 +172,8 @@ function ListGames() {
       formData.append('name', name);
       formData.append('description', description);
       formData.append('category', category);
-      formData.append('min_players', minPlayers);
-      formData.append('max_players', maxPlayers);
+      formData.append('minPlayers', minPlayers);
+      formData.append('maxPlayers', maxPlayers);
       formData.append('barcode', barcode);
       formData.append('cover', coverFile); // Add cover here
 
