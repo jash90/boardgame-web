@@ -7,10 +7,10 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
 } from '@material-ui/core';
+import { useAtomValue } from 'jotai';
 import axios from '../api/axios';
-import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
 
 function RentalsPage() {
@@ -18,18 +18,14 @@ function RentalsPage() {
   const navigate = useNavigate();
   const [rentals, setRentals] = useState([]);
   const [gameName, setGameName] = useState('');
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
-
-  useEffect(() => {
-    fetchRentals();
-  }, [gameId]);
+  const currentUser = useAtomValue(currentUserAtom);
 
   const fetchRentals = async () => {
     try {
       const response = await axios.get(`rentals/${gameId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       setRentals(response.data.rentals);
 
@@ -41,6 +37,10 @@ function RentalsPage() {
     }
   };
 
+  useEffect(() => {
+    fetchRentals();
+  }, [gameId]);
+
   const handleBackClick = () => {
     navigate(-1);
   };
@@ -48,7 +48,7 @@ function RentalsPage() {
   const handleClearRatings = async () => {
     try {
       await axios.delete(`rentals/${gameId}/clearRatings`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       fetchRentals();
     } catch (error) {
@@ -63,14 +63,15 @@ function RentalsPage() {
       </Button>
 
       {currentUser?.role === 'admin' && (
-        <>
-          <Button variant="contained" color="secondary" onClick={handleClearRatings}>
-            Clear Ratings
-          </Button>
-        </>
+        <Button variant="contained" color="secondary" onClick={handleClearRatings}>
+          Clear Ratings
+        </Button>
       )}
 
-      <h2>Rentals for {gameName}</h2>
+      <h2>
+        Rentals for
+        {gameName}
+      </h2>
       <TableContainer>
         <Table>
           <TableHead>
@@ -96,8 +97,12 @@ function RentalsPage() {
                     ? new Date(rental.rental_end_date).toLocaleDateString()
                     : ''}
                 </TableCell>
-                <TableCell>{rental.rating}</TableCell> {/* New field */}
-                <TableCell>{rental.review}</TableCell> {/* New field */}
+                <TableCell>{rental.rating}</TableCell>
+                {' '}
+                {/* New field */}
+                <TableCell>{rental.review}</TableCell>
+                {' '}
+                {/* New field */}
               </TableRow>
             ))}
           </TableBody>

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@material-ui/core';
-import axios from '../api/axios';
+import {
+  Box, Button, TextField, Typography,
+} from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import { Logout } from '@mui/icons-material';
+import axios from '../api/axios';
 
-const ChangePasswordPage = () => {
+function ChangePasswordPage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,11 +29,11 @@ const ChangePasswordPage = () => {
         '/change-password',
         {
           currentPassword,
-          newPassword
+          newPassword,
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        },
       );
 
       if (response.status !== 200) {
@@ -92,6 +94,6 @@ const ChangePasswordPage = () => {
       </Button>
     </Box>
   );
-};
+}
 
 export default ChangePasswordPage;

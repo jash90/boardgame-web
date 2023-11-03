@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, makeStyles, TextField } from '@material-ui/core';
+import React, { useState } from 'react';
+import {
+  Button, Card, CardContent, makeStyles, TextField,
+} from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 import axios from '../api/axios';
-import { useAtom } from 'jotai';
 import { currentUserAtom } from '../jotai/models';
 
 const useStyles = makeStyles({
@@ -10,25 +12,25 @@ const useStyles = makeStyles({
     maxWidth: 400,
     margin: '0 auto',
     padding: '20px 30px',
-    marginTop: 50
+    marginTop: 50,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20
+    marginBottom: 20,
   },
   button: {
-    marginTop: 20 // Add some margin to the top of the button
-  }
+    marginTop: 20, // Add some margin to the top of the button
+  },
 });
 
-const Login = () => {
+function Login() {
   const classes = useStyles();
   const navigate = useNavigate(); // Add this
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const setCurrentUser = useSetAtom(currentUserAtom);
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -51,16 +53,16 @@ const Login = () => {
       return;
     }
     try {
-      const { data } = await axios.post(`login`, {
+      const { data } = await axios.post('login', {
         email,
-        password
+        password,
       });
 
       localStorage.setItem('token', data?.token);
       localStorage.setItem('refreshToken', data?.refreshToken);
 
-      const { data: userData } = await axios.get(`user`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const { data: userData } = await axios.get('user', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setCurrentUser(userData);
       setEmail('');
@@ -70,22 +72,6 @@ const Login = () => {
       console.error(error);
     }
   };
-
-  // const navigateToHome = async () => {
-  //   try {
-  //     const { data: userData } = await axios.get(`user`, {
-  //       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  //     });
-  //     setCurrentUser(userData);
-  //     if (userData) {
-  //       navigate('/');
-  //     }
-  //   } catch (e) {}
-  // };
-  //
-  // useEffect(() => {
-  //   navigateToHome();
-  // }, []);
 
   return (
     <Card className={classes.card}>
@@ -116,12 +102,13 @@ const Login = () => {
           color="primary"
           onClick={() => navigate('/register')}
           className={classes.button}
-          fullWidth>
+          fullWidth
+        >
           Register
         </Button>
       </CardContent>
     </Card>
   );
-};
+}
 
 export default Login;

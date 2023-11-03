@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, makeStyles, TextField } from '@material-ui/core';
+import {
+  Button, Card, CardContent, makeStyles, TextField,
+} from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 import axios from '../api/axios';
-import { useAtom } from 'jotai/index';
 import { currentUserAtom } from '../jotai/models';
 
 const useStyles = makeStyles({
@@ -10,25 +12,25 @@ const useStyles = makeStyles({
     maxWidth: 400,
     margin: '0 auto',
     padding: '20px 30px',
-    marginTop: 50
+    marginTop: 50,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20
+    marginBottom: 20,
   },
   button: {
-    marginTop: 20 // Add some margin to the top of the button
-  }
+    marginTop: 20, // Add some margin to the top of the button
+  },
 });
 
-const Register = () => {
+function Register() {
   const classes = useStyles();
   const navigate = useNavigate(); // Add this
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const setCurrentUser = useSetAtom(currentUserAtom);
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -53,7 +55,7 @@ const Register = () => {
     try {
       await axios.post('register', {
         email,
-        password
+        password,
       });
 
       setEmail('');
@@ -65,14 +67,16 @@ const Register = () => {
 
   const navigateToHome = async () => {
     try {
-      const { data: userData } = await axios.get(`user`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const { data: userData } = await axios.get('user', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setCurrentUser(userData);
       if (userData) {
         navigate('/');
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
@@ -108,12 +112,13 @@ const Register = () => {
           color="primary"
           onClick={() => navigate('/login')}
           className={classes.button}
-          fullWidth>
+          fullWidth
+        >
           Login
         </Button>
       </CardContent>
     </Card>
   );
-};
+}
 
 export default Register;

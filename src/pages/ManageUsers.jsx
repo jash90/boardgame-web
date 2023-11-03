@@ -6,15 +6,15 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
 } from '@material-ui/core';
-import axios from '../api/axios';
 import { useAtom } from 'jotai';
-import { currentUserAtom } from '../jotai/models';
 import { useNavigate } from 'react-router-dom';
 import { Logout } from '@mui/icons-material';
+import { currentUserAtom } from '../jotai/models';
+import axios from '../api/axios';
 
-const ManageUsers = () => {
+function ManageUsers() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [currentUser] = useAtom(currentUserAtom);
@@ -38,7 +38,7 @@ const ManageUsers = () => {
     try {
       await axios.patch(
         `users/${userId}`,
-        { role: newRole }
+        { role: newRole },
       );
       setUsers(users.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
     } catch (error) {
@@ -83,9 +83,8 @@ const ManageUsers = () => {
                     variant="contained"
                     style={{ width: '200px' }}
                     color={user.role === 'admin' ? 'primary' : 'secondary'}
-                    onClick={() =>
-                      handleRoleChange(user.id, user.role === 'admin' ? 'mod' : 'admin')
-                    }>
+                    onClick={() => handleRoleChange(user.id, user.role === 'admin' ? 'mod' : 'admin')}
+                  >
                     {user.role === 'admin' ? 'Demote to Mod' : 'Promote to Admin'}
                   </Button>
                 </TableCell>
@@ -96,6 +95,6 @@ const ManageUsers = () => {
       </TableContainer>
     </>
   );
-};
+}
 
 export default ManageUsers;
