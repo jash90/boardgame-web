@@ -106,17 +106,15 @@ function TableRowBoardGame({ boardGame }) {
         {rentalDate}
       </TableCell>
       <TableCell>{Number(avg_rating).toFixed(2)}</TableCell>
+      {currentUser?.role === 'admin' && (
       <TableCell align="center">
-        {currentUser?.role === 'admin' && (
-          <>
-            <IconButton onClick={editGame}>
-              <EditIcon />
-            </IconButton>
-            <IconButton onClick={removeGame}>
-              <DeleteIcon />
-            </IconButton>
-          </>
-        )}
+
+        <IconButton onClick={editGame}>
+          <EditIcon />
+        </IconButton>
+        <IconButton onClick={removeGame}>
+          <DeleteIcon />
+        </IconButton>
         <Button
           disabled={!is_available}
           variant="contained"
@@ -142,6 +140,7 @@ function TableRowBoardGame({ boardGame }) {
           View Rentals
         </Button>
       </TableCell>
+      )}
     </TableRow>
   );
 }

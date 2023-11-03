@@ -11,15 +11,15 @@ import ManageUsers from './pages/ManageUsers';
 import AuthRoute from './navigation/AuthRoute';
 import ChangePassword from './pages/ChangePassword';
 import NoAuthRoute from './navigation/NoAuthRoute';
+import NavigationTab from './components/NavigationTab';
 
 function App() {
   return (
     <Provider>
       <Router>
+        <NavigationTab />
         <Routes>
-          <Route path="/" element={<AuthRoute />}>
-            <Route index element={<ListGames />} />
-          </Route>
+          <Route path="/" element={<ListGames />} />
           <Route path="/rentals/:gameId/" element={<AuthRoute />}>
             <Route index element={<RentalsPage />} />
           </Route>

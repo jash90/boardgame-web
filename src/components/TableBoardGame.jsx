@@ -7,18 +7,21 @@ import {
   TableRow,
 } from '@material-ui/core';
 import React from 'react';
-import { useAtom } from 'jotai';
-import { boardGamesAtom } from '../jotai/models';
+import { useAtom, useAtomValue } from 'jotai';
+import { boardGamesAtom, currentUserAtom } from '../jotai/models';
 import useBoardGames from '../functions/useBoardGames';
 import TableRowBoardGame from './TableRowBoardGame';
 import DialogAddEditBoardGame from './DialogAddEditBoardGame';
 import DialogBorrowBoardGame from './DialogBorrowBoardGame';
+import DialogTableFilter from './DialogTableFilter';
 
 function TableBoardGame() {
   const [boardGames] = useAtom(boardGamesAtom);
   const { loading } = useBoardGames();
+  const currentUser = useAtomValue(currentUserAtom);
   return (
     <>
+      <DialogTableFilter />
       <DialogAddEditBoardGame />
       <DialogBorrowBoardGame />
       <TableContainer>
@@ -33,7 +36,8 @@ function TableBoardGame() {
               <TableCell>First name and Last name</TableCell>
               <TableCell>Start Rental Date</TableCell>
               <TableCell>AVG Rating</TableCell>
-              <TableCell align="center">Action</TableCell>
+              {currentUser?.role === 'admin' && (
+              <TableCell align="center">Action</TableCell>)}
             </TableRow>
           </TableHead>
           <TableBody>
